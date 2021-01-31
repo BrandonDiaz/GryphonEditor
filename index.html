@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Title</title>
+		<style>
+			html, body {
+				margin: 0;
+				padding: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="model" style="width: 100%; height: 100vh"></div>
+		<script src="assets/js/three.min.js"></script>
+		<script src="assets/js/three.plugin.orbit.js"></script>
+		<script src="assets/js/three.plugin.stlloader.js"></script>
+		<script>
+			// window.onload = function () {
+			var elem     = document.getElementById('model');
+			var camera   = new THREE.PerspectiveCamera(70, elem.clientWidth / elem.clientHeight, 1, 1000);
+			var renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
+
+			renderer.setSize(elem.clientWidth, elem.clientHeight);
+			elem.appendChild(renderer.domElement);
+			camera.position.x = -180;
+			camera.position.y = 180;
+
+			window.addEventListener('resize', function () {
+				renderer.setSize(elem.clientWidth, elem.clientHeight);
+				camera.aspect = elem.clientWidth / elem.clientHeight;
+				camera.updateProjectionMatrix();
+			}, false);
+
+			var controls             = new THREE.OrbitControls(camera, renderer.domElement);
+			controls.enableDamping   = true;
+			controls.rotateSpeed     = 0.5;
+			controls.dampingFactor   = 0.1;
+			controls.enableZoom      = true;
+			controls.autoRotate      = true;
+			controls.autoRotateSpeed = .25;
+
+			var scene = new THREE.Scene();
+			fogColor  = new THREE.Color(0x222222);
+
+			scene.background = fogColor;
+			scene.fog        = new THREE.Fog(fogColor, 0, 1000);
+
+			var loader = new THREE.STLLoader();
+
+			var animate = function () {
+				requestAnimationFrame(animate);
+				controls.update();
+				renderer.render(scene, camera);
+			};
+			animate();
+
+			function render(model, color, x, y, z, rotate_x = 1, rotate_y = 1, rotate_z = 1) {
+				loader.load(model, function (geometry) {
+					var material = new THREE.MeshLambertMaterial({
+						color: color,
+						shading: THREE.FlatShading
+					});
+					var mesh     = new THREE.Mesh(geometry, material);
+
+					mesh.rotation.setFromVector3(new THREE.Vector3(Math.PI / rotate_y, Math.PI / rotate_z, Math.PI / rotate_x));
+					mesh.position.set(x, y, z);
+					// mesh.rotation.set(rotation);
+					scene.add(mesh);
+
+					var middle = new THREE.Vector3();
+					geometry.computeBoundingBox();
+					geometry.boundingBox.getCenter(middle);
+					mesh.geometry.applyMatrix4(new THREE.Matrix4().makeTranslation(-middle.x, -middle.y, -middle.z));
+					var largestDimension = Math.max(geometry.boundingBox.max.x,
+						geometry.boundingBox.max.y,
+						geometry.boundingBox.max.z)
+					camera.position.z    = largestDimension + 200;
+
+				});
+			};
+
+			render('models/Flash Hider.stl', 0xf05e0b, -198, 20, 0);
+			render('models/41mm Carbine FWC.stl', 0xf05e0b, -102, 20, 0);
+			render('models/41mm Carbine FW Cover.stl', 0x006b27, -102, 34, 0);
+			render('models/Carbine Motor Cover.stl', 0x7a44cf, -102, -1, 0);
+			render('models/Carb Bottom Picatinny.stl', 0x7a44cf, -123.4, -1, 0);
+			render('models/Carb Side Picatinny.stl', 0x7a44cf, -128.5, 20, -20);
+			render('models/Carb Side Picatinny.stl', 0x7a44cf, -128.5, 20, 20, 1, 0.5, 1);
+			render('models/Carbine Top Pic (Front).stl', 0x7a44cf, -90, 44, 0);
+			render('models/Carbine Top Pic (Rear).stl', 0x7a44cf, 71.5, 44, 0);
+			render('models/Magwell Angled.stl', 0x006b27, 0, 0, 0);
+			render('models/magazine_suret.stl', 0xf05e0b, -5, -59, 0, 1, 2, 1);
+			render('models/Wire Run.stl', 0x006b27, 8.7, 10.5, -18);
+			render('models/Mag Release.stl', 0xf05e0b, 26.5, -36, 0);
+			render('models/Grip Frame.stl', 0x7a44cf, 94, -50, 0);
+			render('models/Left Panel.stl', 0x006b27, 113, -52, 10);
+			render('models/Right Panel.stl', 0x006b27, 113, -52, -10);
+			render('models/Trigger Cover.stl', 0x7a44cf, 78, -13, 6.2);
+			render('models/Trigger Rack.stl', 0xf05e0b, 78.5, -16, 0);
+			render('models/Rev Trigger.stl', 0xf05e0b, 90.5, -47, 1);
+			render('models/Top Mech Cover.stl', 0x006b27, 92, 34, 0);
+			render('models/left Mech Cover.stl', 0x006b27, 85.8, 14.26, 3.7);
+			render('models/Right Mech Cover.stl', 0x006b27, 85.8, 14.26, -8.725);
+
+			render('models/thumbhole/Mid_scale.stl', 0x7a44cf, 230.7, -28.7, 0, 1, 2);
+			render('models/thumbhole/Left_scale.stl', 0x006b27, 228, -28.7, 13, 1, 2);
+			render('models/thumbhole/Right_scale.stl', 0x006b27, 228, -28.7, -13, 1, 2);
+			render('models/thumbhole/Grip_clip.stl', 0x7a44cf, 131.5, -99, 0, 1, 2);
+			render('models/thumbhole/Battery_cover.stl', 0x7a44cf, 229.4, 35.3, 0, 1, 2);
+			render('models/thumbhole/Buttstock_padding.stl', 0x006b27, 314.8, 1.55, 0, 1, 2);
+
+			// Lights
+
+			scene.add(new THREE.AmbientLight(0xffffff, 0.15));
+			// particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({color: 0xffffff}));
+			// scene.add(particleLight);
+
+			// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+			// directionalLight.position.set(1, 50, 1).normalize();
+			// scene.add(directionalLight);
+			// //
+			// scene.add(new THREE.HemisphereLight(0x0000ff, 0x00ff00, 0.5));
+
+			let keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+			keyLight.position.set(-100, 0, 100);
+
+			let fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
+			fillLight.position.set(100, 0, 100);
+
+			let backLight = new THREE.DirectionalLight(0xffffff, 1.0);
+			backLight.position.set(100, 0, -100).normalize();
+
+			scene.add(keyLight);
+			scene.add(fillLight);
+			scene.add(backLight);
+
+
+			renderer.outputEncoding      = THREE.sRGBEncoding;
+			renderer.shadowMap           = THREE.PCFSoftShadowMap;
+			renderer.toneMapping         = THREE.LinearToneMapping;
+			renderer.toneMappingExposure = 0.5;
+		</script>
+	</body>
+</html>
