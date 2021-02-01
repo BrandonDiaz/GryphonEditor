@@ -41,12 +41,15 @@
 			controls.autoRotateSpeed = .25;
 
 			var scene = new THREE.Scene();
-			fogColor  = new THREE.Color(0x222222);
+			var loader  = new THREE.STLLoader();
 
-			scene.background = fogColor;
-			scene.fog        = new THREE.Fog(fogColor, 0, 1000);
+			scene.background = new THREE.Color(0x000000);
+			scene.fog        = new THREE.Fog(new THREE.Color(0x000000), 0, 900);
 
-			var loader = new THREE.STLLoader();
+			// renderer.outputEncoding      = THREE.sRGBEncoding;
+			renderer.shadowMap   = THREE.PCFSoftShadowMap;
+			renderer.toneMapping = THREE.LinearToneMapping;
+			// renderer.gammaOutput        = true;
 
 			var animate = function () {
 				requestAnimationFrame(animate);
@@ -57,9 +60,14 @@
 
 			function render(model, color, x, y, z, rotate_x = 1, rotate_y = 1, rotate_z = 1) {
 				loader.load(model, function (geometry) {
-					var material = new THREE.MeshLambertMaterial({
+					var material = new THREE.MeshPhysicalMaterial({
 						color: color,
-						shading: THREE.FlatShading
+						fog: true,
+						dithering: true,
+						flatShading: true,
+						metalness: 0.1,
+						clearcoat: 1,
+						clearcoatRoughness: 1
 					});
 					var mesh     = new THREE.Mesh(geometry, material);
 
@@ -81,9 +89,9 @@
 			};
 
 			render('models/Flash Hider.stl', 0xf05e0b, -198, 20, 0);
-			render('models/41mm Carbine FWC.stl', 0xf05e0b, -102, 20, 0);
+			render('models/41mm Carbine FWC.stl', 0x7a44cf, -102, 20, 0);
 			render('models/41mm Carbine FW Cover.stl', 0x006b27, -102, 34, 0);
-			render('models/Carbine Motor Cover.stl', 0x7a44cf, -102, -1, 0);
+			render('models/Carbine Motor Cover.stl', 0x006b27, -102, -1, 0);
 			render('models/Carb Bottom Picatinny.stl', 0x7a44cf, -123.4, -1, 0);
 			render('models/Carb Side Picatinny.stl', 0x7a44cf, -128.5, 20, -20);
 			render('models/Carb Side Picatinny.stl', 0x7a44cf, -128.5, 20, 20, 1, 0.5, 1);
@@ -110,36 +118,23 @@
 			render('models/thumbhole/Battery_cover.stl', 0x7a44cf, 229.4, 35.3, 0, 1, 2);
 			render('models/thumbhole/ButtStock_padding.stl', 0x006b27, 314.8, 1.55, 0, 1, 2);
 
+
 			// Lights
 
-			scene.add(new THREE.AmbientLight(0xffffff, 0.15));
-			// particleLight = new THREE.Mesh(new THREE.SphereGeometry(4, 8, 8), new THREE.MeshBasicMaterial({color: 0xffffff}));
-			// scene.add(particleLight);
-
-			// const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-			// directionalLight.position.set(1, 50, 1).normalize();
-			// scene.add(directionalLight);
-			// //
-			// scene.add(new THREE.HemisphereLight(0x0000ff, 0x00ff00, 0.5));
-
 			let keyLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
-			keyLight.position.set(-100, 0, 100);
+			keyLight.position.set(0, 0, -100);
 
-			let fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(240, 100%, 75%)'), 0.75);
-			fillLight.position.set(100, 0, 100);
+			let fillLight = new THREE.DirectionalLight(new THREE.Color('hsl(30, 100%, 75%)'), 1.0);
+			fillLight.position.set(0, 0, 100);
 
 			let backLight = new THREE.DirectionalLight(0xffffff, 1.0);
-			backLight.position.set(100, 0, -100).normalize();
+			backLight.position.set(0, 100, 0).normalize();
 
 			scene.add(keyLight);
 			scene.add(fillLight);
 			scene.add(backLight);
 
-
-			renderer.outputEncoding      = THREE.sRGBEncoding;
-			renderer.shadowMap           = THREE.PCFSoftShadowMap;
-			renderer.toneMapping         = THREE.LinearToneMapping;
-			renderer.toneMappingExposure = 0.5;
+			scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 		</script>
 	</body>
 </html>
